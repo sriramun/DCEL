@@ -1,14 +1,19 @@
 #include "../inc/dcel.hpp"
 
-int edgeNum = 0,
-    faceNum = 0,
-    vertNum = 0;
 
-std::vector<pVertex> vertArr; 
-std::vector<pEdge> edgeArr; 
-std::vector<pFace> faceArr; 
+graph::graph() {
 
-pVertex MakeVertex(double x, double y) {
+    this->vertNum = 0;
+    this->edgeNum = 0;
+    this->faceNum = 0;
+}
+graph::graph(FILE *ifp, FILE *ofp) : graph::graph() {
+
+    this->ifp = ifp;
+    this->ofp = ofp;
+}
+
+pVertex graph::MakeVertex(double x, double y) {
     // x: abscissa
     // y: ordinate
 
@@ -28,7 +33,7 @@ pVertex MakeVertex(double x, double y) {
     return newVert;
 }
 
-pEdge MakeEdge(pHalfEdge h, pVertex P, pVertex Q) {
+pEdge graph::MakeEdge(pHalfEdge h, pVertex P, pVertex Q) {
     // h: previous halfEdge
     // P,Q: vertices to be connected
 
@@ -168,3 +173,44 @@ pEdge MakeEdge(pHalfEdge h, pVertex P, pVertex Q) {
     return newEdge;
 }
 
+int graph::GetVertCount() {
+    return this->vertNum;
+}
+int graph::GetEdgeCount() {
+    return this->edgeNum;
+}
+int graph::GetFaceCount() {
+    return this->faceNum;
+}
+
+pVertex graph::GetVert(int ind) {
+
+    if(ind < 0 or ind >= vertNum) {
+        std::cerr << "vertArr out of bounds!";
+        return NULL;
+    }
+
+    return vertArr[ind];
+}
+pEdge graph::GetEdge(int ind) {
+
+    if(ind < 0 or ind >= edgeNum) {
+        std::cerr << "edgeArr out of bounds!";
+        return NULL;
+    }
+
+    return edgeArr[ind];
+}
+pFace graph::GetFace(int ind) {
+
+    if(ind < 0 or ind >= faceNum) {
+        std::cerr << "faceArr out of bounds!";
+        return NULL;
+    }
+
+    return faceArr[ind];
+}
+
+graph::~graph() {
+
+}

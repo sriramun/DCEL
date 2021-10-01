@@ -7,12 +7,6 @@
 #include <vector>
 
 
-extern int // global index counter
-    edgeNum,
-    faceNum,
-    vertNum;
-
-
 typedef struct vertex vertex;
 typedef struct halfEdge halfEdge;
 typedef struct edge edge;
@@ -92,15 +86,46 @@ typedef struct face {
 
 } *pFace;
 
-// vectors to store vertices, edges and faces
-extern std::vector<pVertex> vertArr; 
-extern std::vector<pEdge> edgeArr; 
-extern std::vector<pFace> faceArr; 
-    
-// function to create a new vertex
-pVertex MakeVertex (double, double);
 
-// function to create a new edge
-pEdge MakeEdge (pHalfEdge, pVertex, pVertex);
+class graph {
+private:
+
+    int // global index counters
+        vertNum,
+        edgeNum,
+        faceNum;
+
+    // vectors to store vertices, edges and faces
+    std::vector<pVertex> vertArr; 
+    std::vector<pEdge> edgeArr; 
+    std::vector<pFace> faceArr; 
+
+public:
+    // ifp: file pointer to input file
+    // ofp: file pointer to output file
+    FILE *ifp, *ofp;
+    
+
+public:
+
+    graph();
+    graph(FILE*, FILE*);
+
+    // function to create a new vertex
+    pVertex MakeVertex (double, double);
+
+    // function to create a new edge
+    pEdge MakeEdge (pHalfEdge, pVertex, pVertex);
+
+    int GetVertCount();
+    int GetEdgeCount();
+    int GetFaceCount();
+
+    pVertex GetVert(int);
+    pEdge GetEdge(int);
+    pFace GetFace(int);
+
+    ~graph();
+};
 
 #endif
