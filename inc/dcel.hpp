@@ -104,6 +104,7 @@ private:
 
 public:
     // ifp: file pointer to input file
+    // sfp: file pointer to split file
     // ofp: file pointer to output file
     FILE *ifp, *ofp, *sfp;
     

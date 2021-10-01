@@ -110,7 +110,6 @@ void PrintGraph(graph *G) {
             fprintf(G->ofp, " \n");
 
         }
-
     }
 }
 
