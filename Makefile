@@ -8,7 +8,7 @@ exec = assignment1
 $(exec): $(obj)
 	$(CXX) $(obj) -o $@
 
-$(obj): %.o: %.c
+$(obj): %.o: %.cpp
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $< -o $@
 
 clean:

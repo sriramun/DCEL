@@ -95,10 +95,6 @@ void PrintQuad(pPoly q1, FILE *ofp) {
 
 int main(int argc, char *argv[]) {
 
-    vertArr = (pVertex *) calloc(MAXN, sizeof(vertex));
-    edgeArr = (pEdge *) calloc(MAXN, sizeof(edge));
-    faceArr = (pFace *) calloc(MAXN, sizeof(face));
-
     // ifp: file pointer to input file
     // ofp: file pointer to output file
     FILE *ifp, *ofp;
@@ -109,7 +105,7 @@ int main(int argc, char *argv[]) {
 
     // creating square
     pPoly testQuad;
-    testQuad = (pPoly) malloc(sizeof(poly));
+    testQuad = new poly;
 
     // and calling necessary functions
     MakeQuad(testQuad, ifp);
