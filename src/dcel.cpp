@@ -3,13 +3,20 @@
 
 graph::graph() {
 
-    this->vertNum = 0;
-    this->edgeNum = 0;
-    this->faceNum = 0;
+    MAXN = 1000;
+
+    vertNum = 0;
+    edgeNum = 0;
+    faceNum = 0;
+
+    vertArr.resize(MAXN);
+    edgeArr.resize(MAXN);
+    faceArr.resize(MAXN);
 }
-graph::graph(FILE *ifp, FILE *ofp) : graph::graph() {
+graph::graph(FILE *ifp, FILE *sfp, FILE *ofp) : graph::graph() {
 
     this->ifp = ifp;
+    this->sfp = sfp;
     this->ofp = ofp;
 }
 
@@ -27,7 +34,8 @@ pVertex graph::MakeVertex(double x, double y) {
     newVert->ind = vertNum;
 
     // update global vertex array and index
-    vertArr.push_back(newVert);
+    vertArr[vertNum] = newVert;
+    newVert->ind = vertNum;
     vertNum++;
 
     return newVert;
@@ -82,7 +90,8 @@ pEdge graph::MakeEdge(pHalfEdge h, pVertex P, pVertex Q) {
         f1->side = h1; 
 
         // update global face array and index
-        faceArr.push_back(f1);
+        faceArr[faceNum] = f1;
+        f1->ind = faceNum;
         faceNum++;
 
     } else {
@@ -94,42 +103,39 @@ pEdge graph::MakeEdge(pHalfEdge h, pVertex P, pVertex Q) {
             // hence, non-nullity of Q->ray implies a face split
 
 
-            // create a new face
-            pFace
-                f1 = new face;
+            pFace newF = new face;
 
-            // data assignment and updation
+            newF->side = h2;
+            h->f->side = h1;
+
             h1->nxt = h->nxt;
             h->nxt->prev = h1;
 
             h->nxt = h2;
             h2->prev = h;
-            
-            // cycle through h1 and update f-member to new face
+
+
             pHalfEdge temp = h1;
             while(temp->head != Q) {
-                
-                temp->f = f1;
+                // temp->f = newF;
                 temp = temp->nxt;
             }
-            // final temp must point to h1->prev
-            // ergo h2->nxt must point to temp->twin
+            h1->f = temp->f;
 
-            f1->side = temp;
+            h2->nxt = temp->nxt;
+            temp->nxt->prev = h2;
+
             temp->nxt = h1;
             h1->prev = temp;
 
-            temp->f = f1;
+            temp = h2;
+            while(temp->head != P) {
+                temp->f = newF;
+                temp = temp->nxt;
+            }
 
-            h2->nxt = temp->twin;
-            temp->twin->prev = h2;
-
-            h2->f = temp->twin->f;
-
-            f1->ind = faceNum;
-
-            // update global face array and index
-            faceArr.push_back(f1);
+            faceArr[faceNum] = newF;
+            newF->ind = faceNum;
             faceNum++;
         }
 
@@ -167,10 +173,82 @@ pEdge graph::MakeEdge(pHalfEdge h, pVertex P, pVertex Q) {
     newEdge->ind = edgeNum;
 
     // update global edge array and index
-    edgeArr.push_back(newEdge);
+    edgeArr[edgeNum] = newEdge;
+    newEdge->ind = edgeNum;
     edgeNum++;
 
     return newEdge;
+}
+
+
+pVertex graph::SplitEdge(pEdge e, pHalfEdge h, int ind) {
+
+    pVertex v;
+    v = MakeVertex((e->t1->tail->x + e->t1->head->x)/2, (e->t1->tail->y + e->t1->head->y)/2);
+
+    pEdge se = new edge;
+    se->ind = ind;
+    edgeArr[ind] = se;
+
+    pHalfEdge
+        h1 = new halfEdge,
+        h2 = new halfEdge;
+
+    if(e->t1->f->side == e->t1) {
+
+        e->t1->f->side = h->nxt->twin;
+        e->t2->f->side = h1;
+    }
+
+    h1->f = h->nxt->f;
+    h1->head = v;
+    h1->nxt = h->nxt;
+    h1->parent = e;
+    h1->prev = h;
+    h1->tail = h->head;
+    h1->twin = h->nxt->twin;
+
+    h2->f = h->nxt->twin->f;
+    h2->head = v;
+    h2->nxt = h->nxt->twin;
+    h2->parent = se;
+    h2->prev = h->nxt->twin->prev;
+    h2->tail = h->nxt->head;
+    h2->twin = h->nxt;
+
+    e->t1 = h->nxt->twin;
+    e->t2 = h1;
+
+    se->t1 = h2;
+    se->t2 = h->nxt;
+
+    v->ray = h->nxt;
+
+    h->nxt->tail = v;
+    h->nxt->twin->tail = v;
+
+    h->nxt->parent = se;
+
+
+
+    h->nxt->twin->prev->nxt = h2;
+    h->nxt->twin->prev = h2;
+
+    h->nxt->prev = h1;
+    h->nxt = h1;
+
+    return v;
+}
+
+void graph::SplitEdge(pEdge e1, pEdge e2) {
+
+    pVertex v1 = SplitEdge(e1, e1->t2->prev, edgeNum+1);
+    pVertex v2 = SplitEdge(e2, e2->t1->prev, edgeNum+2);
+
+
+    MakeEdge(e1->t2, v1, v2);
+
+    edgeNum+=2;
 }
 
 int graph::GetVertCount() {
@@ -185,7 +263,7 @@ int graph::GetFaceCount() {
 
 pVertex graph::GetVert(int ind) {
 
-    if(ind < 0 or ind >= vertNum) {
+    if(ind < 0 or ind > vertNum) {
         std::cerr << "vertArr out of bounds!";
         return NULL;
     }
@@ -194,8 +272,8 @@ pVertex graph::GetVert(int ind) {
 }
 pEdge graph::GetEdge(int ind) {
 
-    if(ind < 0 or ind >= edgeNum) {
-        std::cerr << "edgeArr out of bounds!";
+    if(ind < 0 or ind > edgeNum) {
+        std::cerr << ind << " " << edgeNum << " edgeArr out of bounds!\n";
         return NULL;
     }
 
@@ -203,7 +281,7 @@ pEdge graph::GetEdge(int ind) {
 }
 pFace graph::GetFace(int ind) {
 
-    if(ind < 0 or ind >= faceNum) {
+    if(ind < 0 or ind > faceNum) {
         std::cerr << "faceArr out of bounds!";
         return NULL;
     }

@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <fstream>
-
+#include <cstring>
 #include <vector>
 
 
@@ -95,6 +95,8 @@ private:
         edgeNum,
         faceNum;
 
+    int MAXN;
+
     // vectors to store vertices, edges and faces
     std::vector<pVertex> vertArr; 
     std::vector<pEdge> edgeArr; 
@@ -103,19 +105,23 @@ private:
 public:
     // ifp: file pointer to input file
     // ofp: file pointer to output file
-    FILE *ifp, *ofp;
+    FILE *ifp, *ofp, *sfp;
     
 
 public:
 
     graph();
-    graph(FILE*, FILE*);
+    graph(FILE*, FILE*, FILE*);
 
     // function to create a new vertex
     pVertex MakeVertex (double, double);
 
     // function to create a new edge
     pEdge MakeEdge (pHalfEdge, pVertex, pVertex);
+
+    // functions to split edges
+    pVertex SplitEdge(pEdge, pHalfEdge, int);
+    void SplitEdge(pEdge, pEdge);
 
     int GetVertCount();
     int GetEdgeCount();

@@ -43,70 +43,92 @@ void MakeQuad(pPoly q1, graph *G) {
     }
 }
 
-void PrintQuad(pPoly q1, graph *G) {
+void MakeSplits(graph *G) {
 
-    // function to print a quadrilateral's details
+    char cmd[32];
+    while(fscanf(G->sfp, "%31s", cmd) == 1) {
+
+        if(!strcmp(cmd, "Split")) {
+
+            int x,y;
+            fscanf(G->sfp, "%d %d", &x, &y);
+
+            G->SplitEdge(G->GetEdge(x), G->GetEdge(y));
+
+        } else {
+
+            break;
+        }
+    }
+}
+
+void PrintGraph(graph *G) {
+
 
     fprintf(G->ofp, "Edges:\n");
+    for(int i = 0; i < G->GetEdgeCount(); i++) {
 
-    pHalfEdge temp = q1->e[0]->t2;
+        fprintf(G->ofp, "%d\n", G->GetEdge(i)->ind);
+    }
 
-    do {
-        
-        fprintf(G->ofp, "%d\n", temp->parent->ind);
-        temp = temp->nxt;
-
-    } while(temp != q1->e[0]->t2);
 
     fprintf(G->ofp, "Halfedges:\n");
-    do {
+    for(int i = 0; i < G->GetEdgeCount(); i++) {
+
+        pHalfEdge temp = G->GetEdge(i)->t1;
 
         fprintf(G->ofp, 
             "startVertexIndex=%d endVertexIndex=%d nextEdge=%d previousEdge=%d faceIndex=%d edgeIndex=%d\n", 
             temp->tail->ind, temp->head->ind, temp->nxt->parent->ind, temp->prev->parent->ind, temp->f->ind, temp->parent->ind);
 
-        temp = temp->nxt;
+        temp = temp->twin;
 
-    } while(temp != q1->e[0]->t2);
+        fprintf(G->ofp, 
+            "startVertexIndex=%d endVertexIndex=%d nextEdge=%d previousEdge=%d faceIndex=%d edgeIndex=%d\n", 
+            temp->tail->ind, temp->head->ind, temp->nxt->parent->ind, temp->prev->parent->ind, temp->f->ind, temp->parent->ind);
+    }
 
-    // iterating through faceArr
     fprintf(G->ofp, "Faces:\n");
-    for(int i = 1; i < G->GetFaceCount(); i++) {
-
+    for(int i = 0; i < G->GetFaceCount(); i++) {
+    
+        pHalfEdge temp;
         pFace f;
 
         if(f = G->GetFace(i)) {
             
-            // fprint decremented face index
-            // since faceArr[0] points to 'outside' face
-            fprintf(G->ofp, "FaceIndex:%d Edges ", f->ind -1);
-
             temp = f->side;
+
+            fprintf(G->ofp, "FaceIndex:%d Edges ", f->ind);
             do {
 
                 fprintf(G->ofp, "%d->", temp->parent->ind);
-                temp = temp->prev;
+
+                temp = temp->nxt;
 
             } while(temp != f->side);
 
-            // erase leading arrow
             fseek(G->ofp, -2, SEEK_CUR);
             fprintf(G->ofp, " \n");
+
         }
+
     }
 }
+
+
 
 int main(int argc, char *argv[]) {
 
     // ifp: file pointer to input file
     // ofp: file pointer to output file
-    FILE *ifp, *ofp;
+    FILE *ifp, *ofp, *sfp;
 
     ifp = fopen(argv[1], "r");
-    ofp = fopen(argv[2], "w");
+    sfp = fopen(argv[2], "r");
+    ofp = fopen(argv[3], "w");
 
     // creating dcel workspace
-    graph *G = new graph(ifp, ofp);
+    graph *G = new graph(ifp, sfp, ofp);
 
     // creating square
     pPoly testQuad;
@@ -114,7 +136,8 @@ int main(int argc, char *argv[]) {
 
     // and calling necessary functions
     MakeQuad(testQuad, G);
-    PrintQuad(testQuad, G);
+    MakeSplits(G);
+    PrintGraph(G);
 
     fcloseall();
 
