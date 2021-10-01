@@ -120,13 +120,17 @@ public:
     pEdge MakeEdge (pHalfEdge, pVertex, pVertex);
 
     // functions to split edges
+        // split a single edge with a tailing halfEdge and index
     pVertex SplitEdge(pEdge, pHalfEdge, int);
+        // split two edges and join their mid-points
     void SplitEdge(pEdge, pEdge);
 
+    // functions to access private data members
     int GetVertCount();
     int GetEdgeCount();
     int GetFaceCount();
 
+    // functions to access private containers
     pVertex GetVert(int);
     pEdge GetEdge(int);
     pFace GetFace(int);

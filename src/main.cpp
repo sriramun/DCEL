@@ -17,7 +17,6 @@ typedef struct {
 
 
 void MakeQuad(pPoly q1, graph *G) {
-
     // function to create a quadrilateral polygon
 
 
@@ -63,7 +62,7 @@ void MakeSplits(graph *G) {
 }
 
 void PrintGraph(graph *G) {
-
+    // function to print required output
 
     fprintf(G->ofp, "Edges:\n");
     for(int i = 0; i < G->GetEdgeCount(); i++) {
@@ -116,10 +115,10 @@ void PrintGraph(graph *G) {
 }
 
 
-
 int main(int argc, char *argv[]) {
 
     // ifp: file pointer to input file
+    // sfp: file pointer to split file
     // ofp: file pointer to output file
     FILE *ifp, *ofp, *sfp;
 
@@ -134,9 +133,11 @@ int main(int argc, char *argv[]) {
     pPoly testQuad;
     testQuad = new poly;
 
-    // and calling necessary functions
+    // calling necessary functions
     MakeQuad(testQuad, G);
     MakeSplits(G);
+
+    // printing result
     PrintGraph(G);
 
     fcloseall();

@@ -105,19 +105,21 @@ pEdge graph::MakeEdge(pHalfEdge h, pVertex P, pVertex Q) {
 
             pFace newF = new face;
 
+            // make halfEdges of the new edge the checkpoint for faces
             newF->side = h2;
             h->f->side = h1;
 
+            // reordering data to accommodate new edge
             h1->nxt = h->nxt;
             h->nxt->prev = h1;
 
             h->nxt = h2;
             h2->prev = h;
 
-
+            // traversing cycle through h1
+            // to find required data for h2
             pHalfEdge temp = h1;
             while(temp->head != Q) {
-                // temp->f = newF;
                 temp = temp->nxt;
             }
             h1->f = temp->f;
@@ -128,6 +130,7 @@ pEdge graph::MakeEdge(pHalfEdge h, pVertex P, pVertex Q) {
             temp->nxt = h1;
             h1->prev = temp;
 
+            // assigning faces to halfEdges of cycle through h2
             temp = h2;
             while(temp->head != P) {
                 temp->f = newF;
@@ -183,6 +186,7 @@ pEdge graph::MakeEdge(pHalfEdge h, pVertex P, pVertex Q) {
 
 pVertex graph::SplitEdge(pEdge e, pHalfEdge h, int ind) {
 
+    // creating a new vertex with mid-point co-ordinates
     pVertex v;
     v = MakeVertex((e->t1->tail->x + e->t1->head->x)/2, (e->t1->tail->y + e->t1->head->y)/2);
 
@@ -194,11 +198,14 @@ pVertex graph::SplitEdge(pEdge e, pHalfEdge h, int ind) {
         h1 = new halfEdge,
         h2 = new halfEdge;
 
+    // making sure face checkpoints remain twins
     if(e->t1->f->side == e->t1) {
 
         e->t1->f->side = h->nxt->twin;
         e->t2->f->side = h1;
     }
+    
+    // reordering data to accommodate new edge
 
     h1->f = h->nxt->f;
     h1->head = v;
@@ -241,6 +248,9 @@ pVertex graph::SplitEdge(pEdge e, pHalfEdge h, int ind) {
 }
 
 void graph::SplitEdge(pEdge e1, pEdge e2) {
+
+    // making use of the index argument
+    // to follow naming convention
 
     pVertex v1 = SplitEdge(e1, e1->t2->prev, edgeNum+1);
     pVertex v2 = SplitEdge(e2, e2->t1->prev, edgeNum+2);
