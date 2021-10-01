@@ -1,16 +1,16 @@
 #ifndef _DCEL_H_
 #define _DCEL_H_
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
+#include <fstream>
+
+#include <vector>
+
 
 extern int // global index counter
     edgeNum,
     faceNum,
     vertNum;
-
-extern const int
-    MAXN; // index limit
 
 
 typedef struct vertex vertex;
@@ -92,11 +92,11 @@ typedef struct face {
 
 } *pFace;
 
-// arrays to store vertices, edges and faces
-extern pVertex *vertArr; 
-extern pEdge *edgeArr;
-extern pFace *faceArr;
-
+// vectors to store vertices, edges and faces
+extern std::vector<pVertex> vertArr; 
+extern std::vector<pEdge> edgeArr; 
+extern std::vector<pFace> faceArr; 
+    
 // function to create a new vertex
 pVertex MakeVertex (double, double);
 

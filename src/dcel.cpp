@@ -1,21 +1,19 @@
-#include "../inc/dcel.h"
+#include "../inc/dcel.hpp"
 
 int edgeNum = 0,
     faceNum = 0,
     vertNum = 0;
 
-const int MAXN = 1000;
-
-pVertex *vertArr;
-pEdge *edgeArr;
-pFace *faceArr;
+std::vector<pVertex> vertArr; 
+std::vector<pEdge> edgeArr; 
+std::vector<pFace> faceArr; 
 
 pVertex MakeVertex(double x, double y) {
     // x: abscissa
     // y: ordinate
 
     // create required vertex
-    pVertex newVert = (pVertex) malloc(sizeof(vertex));
+    pVertex newVert = new vertex;
 
     // data assignment
     newVert->x = x;
@@ -24,7 +22,7 @@ pVertex MakeVertex(double x, double y) {
     newVert->ind = vertNum;
 
     // update global vertex array and index
-    vertArr[vertNum] = newVert;
+    vertArr.push_back(newVert);
     vertNum++;
 
     return newVert;
@@ -36,8 +34,8 @@ pEdge MakeEdge(pHalfEdge h, pVertex P, pVertex Q) {
 
     // create constituent (twin) halfEdges
     pHalfEdge 
-        h1 = (pHalfEdge) malloc(sizeof(halfEdge)),
-        h2 = (pHalfEdge) malloc(sizeof(halfEdge));
+        h1 = new halfEdge,
+        h2 = new halfEdge;
 
 
     // let h1 be halfEdge originating from Q
@@ -55,7 +53,7 @@ pEdge MakeEdge(pHalfEdge h, pVertex P, pVertex Q) {
         // if first edge being created
 
         // create an 'outside' face
-        pFace f1 = (pFace) malloc(sizeof(face));
+        pFace f1 = new face;
 
         P->ray = h2;
         Q->ray = h1;
@@ -79,7 +77,7 @@ pEdge MakeEdge(pHalfEdge h, pVertex P, pVertex Q) {
         f1->side = h1; 
 
         // update global face array and index
-        faceArr[0] = f1;
+        faceArr.push_back(f1);
         faceNum++;
 
     } else {
@@ -93,7 +91,7 @@ pEdge MakeEdge(pHalfEdge h, pVertex P, pVertex Q) {
 
             // create a new face
             pFace
-                f1 = (pFace) malloc(sizeof(face));
+                f1 = new face;
 
             // data assignment and updation
             h1->nxt = h->nxt;
@@ -126,10 +124,8 @@ pEdge MakeEdge(pHalfEdge h, pVertex P, pVertex Q) {
             f1->ind = faceNum;
 
             // update global face array and index
-            faceArr[faceNum] = f1;
+            faceArr.push_back(f1);
             faceNum++;
-
-            free(temp);
         }
 
         else {
@@ -156,7 +152,7 @@ pEdge MakeEdge(pHalfEdge h, pVertex P, pVertex Q) {
     }
 
     // create required edge
-    pEdge newEdge = (pEdge) malloc(sizeof(edge));
+    pEdge newEdge = new edge;
 
     // data assignment
     h1->parent = newEdge;
@@ -166,7 +162,7 @@ pEdge MakeEdge(pHalfEdge h, pVertex P, pVertex Q) {
     newEdge->ind = edgeNum;
 
     // update global edge array and index
-    edgeArr[edgeNum] = newEdge;
+    edgeArr.push_back(newEdge);
     edgeNum++;
 
     return newEdge;

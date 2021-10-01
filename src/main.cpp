@@ -1,4 +1,4 @@
-#include "../inc/dcel.h"
+#include "../inc/dcel.hpp"
 
 // POLYGONS
 typedef struct {
