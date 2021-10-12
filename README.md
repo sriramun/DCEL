@@ -7,4 +7,6 @@ Halfedges are outputted in an order corresponding to the time of creation of the
 
 An "outside" extraneous face is counted and outputted.
 
-Split command values in the split file are assumed to be prefixed with the word "Split"
+Split command values in the split file are assumed to be prefixed with "Split "
+
+Point command values in the point file are assumed to be prefixed with "Id: "

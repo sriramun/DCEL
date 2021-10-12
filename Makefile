@@ -3,7 +3,7 @@ CXXFLAGS = -I ./inc
 VPATH = ./src
 
 obj = main.o dcel.o
-exec = assignment1
+exec = assignment3
 
 $(exec): $(obj)
 	$(CXX) $(obj) -o $@
