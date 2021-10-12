@@ -13,10 +13,11 @@ graph::graph() {
     edgeArr.resize(MAXN);
     faceArr.resize(MAXN);
 }
-graph::graph(FILE *ifp, FILE *sfp, FILE *ofp) : graph::graph() {
+graph::graph(FILE *ifp, FILE *sfp, FILE *pfp, FILE *ofp) : graph::graph() {
 
     this->ifp = ifp;
     this->sfp = sfp;
+    this->pfp = pfp;
     this->ofp = ofp;
 }
 
@@ -39,6 +40,77 @@ pVertex graph::MakeVertex(double x, double y) {
     vertNum++;
 
     return newVert;
+}
+
+int graph::IsBound(std::vector<pVertex> faceVerts, double x, double y) {
+
+    int flag = 0,
+        N = faceVerts.size();
+    
+    // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html
+    //
+    // algorithm to check if a point lies within a polygon
+    // 
+    // cast a 'ray' (unrelated to the structure defined in this program)
+    // parallel to the positive x-axis
+    // and check the parity of the number of edges it crosses
+    for(int i = 0; i < N; i++) {
+        int j = (i+1)%N;
+    
+        int vix = faceVerts[i]->x,
+            viy = faceVerts[i]->y,
+            vjx = faceVerts[j]->x,
+            vjy = faceVerts[j]->y;
+
+        if( (viy > y) != (vjy > y) and 
+            x < (vix) + (vjx - vix)*(y - viy)/(vjy - viy) )
+            flag = !flag;
+    }    
+    
+    // std::cout << '\n';
+    return flag;
+}
+
+pPoint graph::MakePoint(int id, double x, double y) { 
+
+    // memory allocation and data assignment
+    // for a new point
+
+    pPoint newPoint = new point;
+
+    newPoint->id = id;
+    newPoint->x = x;
+    newPoint->y = y;
+
+    pointArr.push_back(newPoint);
+
+    // check its bounding face
+    for(int i = 0; i < GetFaceCount(); i++) {
+        
+        // std::cout << "facae: " << faceArr[i]->ind << ' ' << faceNum << '\n';
+
+        // vector to store face vertices
+        std::vector<pVertex> faceVerts;
+
+        pHalfEdge temp;
+        pFace f = faceArr[i];
+
+        // iterating over the face
+        // to fill faceVerts
+        temp = f->side;
+        do {
+            faceVerts.push_back(temp->tail);
+            temp = temp->nxt;    
+        } while(temp != f->side);
+
+
+        // check if IsBound() is true
+        // and update accordingly
+        if(!IsBound(faceVerts, x, y))
+            newPoint->f = f;
+    }
+
+    return newPoint;
 }
 
 pEdge graph::MakeEdge(pHalfEdge h, pVertex P, pVertex Q) {

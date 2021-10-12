@@ -61,6 +61,32 @@ void MakeSplits(graph *G) {
     }
 }
 
+void MakePoints(graph *G) {
+
+    char cmd[32];
+    while(fscanf(G->pfp, "%31s", cmd) == 1) {
+
+        // std::cout << cmd << '\n';
+
+        if(!strcmp(cmd, "Id:")) {
+
+            int id;
+            double x,y;
+            fscanf(G->pfp, "%d %lf %lf", &id, &x, &y);
+    
+            // debug
+            // std::cout << "what \n";
+            // std::cout << id << " " << x << " " << y << "\n";
+
+            G->MakePoint(id, x, y);
+
+        } else {
+
+            break;
+        }
+    }
+}
+
 void PrintGraph(graph *G) {
     // function to print required output
 
@@ -86,6 +112,8 @@ void PrintGraph(graph *G) {
             "startVertexIndex=%d endVertexIndex=%d nextEdge=%d previousEdge=%d faceIndex=%d edgeIndex=%d\n", 
             temp->tail->ind, temp->head->ind, temp->nxt->parent->ind, temp->prev->parent->ind, temp->f->ind, temp->parent->ind);
     }
+    
+    std::cout << "please end this 'DCEL' nightmare.\n";
 
     fprintf(G->ofp, "Faces:\n");
     for(int i = 0; i < G->GetFaceCount(); i++) {
@@ -111,6 +139,9 @@ void PrintGraph(graph *G) {
 
         }
     }
+
+    for(auto p : G->pointArr)
+        fprintf(G->ofp, "Id: %d %d\n", p->id, p->f->ind);
 }
 
 
@@ -119,14 +150,15 @@ int main(int argc, char *argv[]) {
     // ifp: file pointer to input file
     // sfp: file pointer to split file
     // ofp: file pointer to output file
-    FILE *ifp, *ofp, *sfp;
+    FILE *ifp, *ofp, *sfp, *pfp;
 
     ifp = fopen(argv[1], "r");
     sfp = fopen(argv[2], "r");
-    ofp = fopen(argv[3], "w");
+    pfp = fopen(argv[3], "r");
+    ofp = fopen(argv[4], "w");
 
     // creating dcel workspace
-    graph *G = new graph(ifp, sfp, ofp);
+    graph *G = new graph(ifp, sfp, pfp, ofp);
 
     // creating square
     pPoly testQuad;
@@ -135,6 +167,7 @@ int main(int argc, char *argv[]) {
     // calling necessary functions
     MakeQuad(testQuad, G);
     MakeSplits(G);
+    MakePoints(G);
 
     // printing result
     PrintGraph(G);

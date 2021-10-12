@@ -31,6 +31,25 @@ typedef struct vertex{
 
 } *pVertex;
 
+// POINTS
+typedef struct point {
+
+    /* Contents:
+        
+        id: ID
+
+        x: Abscissa
+        y: Ordinate
+
+        f: enclosing face
+    */
+
+    int id;
+    double x,y;
+    face *f;
+
+} *pPoint;
+
 // HALF-EDGES
 typedef struct halfEdge {
 
@@ -106,13 +125,19 @@ public:
     // ifp: file pointer to input file
     // sfp: file pointer to split file
     // ofp: file pointer to output file
-    FILE *ifp, *ofp, *sfp;
+    FILE *ifp, *ofp, *sfp, *pfp;
     
+    std::vector<pPoint> pointArr;
 
 public:
 
     graph();
-    graph(FILE*, FILE*, FILE*);
+    graph(FILE*, FILE*, FILE*, FILE*);
+
+    // function to create a new point (assignment-3)
+    pPoint MakePoint(int, double, double);
+    // function to check if point lies within a face
+    int IsBound(std::vector<pVertex>, double, double);
 
     // function to create a new vertex
     pVertex MakeVertex (double, double);
